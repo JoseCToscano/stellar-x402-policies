@@ -7,9 +7,11 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "demo": "node dist/demo.js"
+    "demo": "node dist/demo.js",
+    "live": "node dist/live.js"
   },
   "dependencies": {
+    "@stellar/stellar-sdk": "^16.3.0",
     "@x402/core": "~2.28.0",
     "@x402/stellar": "~2.28.0",
     "stellar-x402-policies": "workspace:*"
