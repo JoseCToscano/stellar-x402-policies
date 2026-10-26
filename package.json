@@ -1,0 +1,25 @@
+{
+  "name": "stellar-x402-policies-monorepo",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "packageManager": "pnpm@10.33.4",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "pnpm -r --if-present build",
+    "lint": "eslint .",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm --filter stellar-x402-policies test",
+    "facilitator": "pnpm --filter stellar-x402-policies build && pnpm --filter stellar-x402-facilitator start",
+    "demo": "pnpm --filter stellar-x402-policies build && pnpm --filter stellar-x402-testnet-demo demo"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/node": "^22.19.1",
+    "eslint": "^9.39.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.2"
+  }
+}
