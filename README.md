@@ -106,6 +106,21 @@ cp .env.example .env
 pnpm demo
 ```
 
+## Live on testnet
+
+`pnpm live` runs the settlement on Stellar testnet from `examples/testnet-demo`. It generates throwaway keypairs, funds the accounts with [Friendbot](https://friendbot.stellar.org), deploys an OpenZeppelin stellar-accounts instance from the protocol-27 WASM already on testnet, and installs a `spending_limit` rule for the native asset contract. The seeds stay in process memory. The script does not read or write `.env`.
+
+The same unsigned payment was rejected by `ExactStellarScheme` and then settled by `examples/facilitator` (`PolicyAwareExactStellarScheme`, cold profile, cap 6,500,000 stroops). A second payment from the same account measured the fee after the policy had extended its TTL. Details and the setup transactions are in [docs/testnet-results.md](docs/testnet-results.md).
+
+| | What the scheme simulated | Fee charged | Transaction |
+| --- | ---: | ---: | --- |
+| Reference, default 50,000 stroop ceiling | 369,788 | not submitted | `invalid_exact_stellar_payload_fee_exceeds_maximum` |
+| Reference, ceiling raised above that fee | same payload | not submitted | `invalid_exact_stellar_payload_event_not_transfer` |
+| Cold settlement (first `spending_limit` TTL extension) | 369,788 | 318,897 | [`2ecdc5d2…ea38`](https://stellar.expert/explorer/testnet/tx/2ecdc5d2ff530b0347a9bf6d8033f162036ccbd9ee435328b84c5adf0d61ea38) |
+| Warm settlement (TTL already extended) | 58,328 | 48,067 | [`eee416ae…ef01`](https://stellar.expert/explorer/testnet/tx/eee416ae7b39839ab689e63ffb2a8e33924f4b6fb906f973eb47778dc16eef01) |
+
+Both settled payments moved 0.1 XLM from smart account `CA37FAB2OXRQLTMKR36QXMT3JREOVIEDDK7SW3YCAB6NRZZNZUG7K7BV` on 2026-10-26 (ledgers 5,405,125 and 5,405,126). The simulated fee is `minResourceFee` plus the 100-stroop inclusion buffer. The charged fee is lower because the network refunds unused resources.
+
 ## Development
 
 Node.js 22 and pnpm 10.
