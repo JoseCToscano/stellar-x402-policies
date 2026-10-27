@@ -1,16 +1,86 @@
 # stellar-x402-policies
 
-Policy-aware verification for [x402](https://github.com/x402-foundation/x402) payments from Stellar smart accounts. The package sits on `@x402/stellar` `ExactStellarScheme` (2.28.x) so an existing facilitator can accept OpenZeppelin stellar-accounts that enforce policies such as `spending_limit`.
+Policy-aware verification for [x402](https://github.com/x402-foundation/x402) payments from Stellar smart accounts. An existing facilitator can accept an OpenZeppelin smart account that enforces `spending_limit` and this repo's merchant allowlist. The account contract enforces those rules; the SDK, MCP server, and `sxp` CLI are clients of that boundary.
 
 Apache-2.0.
+
+<!-- demo video: TODO -->
+
+A 2-minute walkthrough is coming. There is no video link yet.
+
+## Quickstart
+
+`pnpm demo` runs the kit on Stellar testnet. It does not read an env file. Seeds stay in process memory.
+
+```bash
+pnpm i && pnpm demo
+```
+
+The MCP server reads `SXP_ACCOUNT`, `SXP_AGENT_SECRET`, `SXP_RPC_URL`, `SXP_FACILITATOR_URL`, and `SXP_NETWORK`. Optional names are `SXP_VERIFIER`, `SXP_SOURCE`, `SXP_MERCHANT_ALLOWLIST`, and `SXP_ALLOW_MAINNET`. The facilitator reads `FACILITATOR_SECRET_KEY` and `POLICY_CONTRACT_IDS`. Values stay out of this document.
+
+Claude Desktop and Cursor use the same `mcpServers` entry. The tools are `pay`, `inspect_account`, and `estimate_fee`. Build first with `pnpm --filter @stellar-x402-policies/mcp build`. The `S...` value is a placeholder for the agent key, never the owner key.
+
+```json
+{
+  "mcpServers": {
+    "stellar-x402-policies": {
+      "command": "node",
+      "args": ["packages/mcp/dist/stdio.js"],
+      "env": {
+        "SXP_ACCOUNT": "C...",
+        "SXP_AGENT_SECRET": "S...",
+        "SXP_RPC_URL": "https://soroban-testnet.stellar.org",
+        "SXP_FACILITATOR_URL": "http://127.0.0.1:4020",
+        "SXP_NETWORK": "testnet"
+      }
+    }
+  }
+}
+```
+
+```bash
+pnpm --filter @stellar-x402-policies/inspector build
+SXP_SOURCE=GBGJKOPHGQ2OX5VFKEPAPG3QBGYNT3UQ4OQV7QSYXMLDVYSL2V3R73XO \
+  node packages/inspector/dist/cli.js inspect CDS2MQUJNFUEH52JKRA4KKFCR4GMXXTALKRIERUF5OCZM5J4PNZHP4PF
+```
+
+`sxp inspect <C-address>` is the same command once the package bin is on `PATH`. `SXP_SOURCE` is a funded account's public key, not a seed. The source above is the kit-run owner, and the `C` address is the smart account, both from [docs/testnet-results-kit.md](docs/testnet-results-kit.md). The threat model is [docs/threat-model.md](docs/threat-model.md). A map of the docs is [docs/index.md](docs/index.md).
+
+## How this differs
+
+On-chain enforcement is the boundary. A prompt-injected agent or a compromised host can skip the SDK precheck. It cannot skip `__check_auth`. The kit demo's MCP precheck refused a payment to a merchant that is not on the allowlist. A force-submit of that same payment simulated as `Error(Contract, #3401)` and failed on-chain with `invokeHostFunctionTrapped` ([`8a56629e…`](https://stellar.expert/explorer/testnet/tx/8a56629efe98a7daa61e28b1ec735b24e424e2a783ba8f1920fb64f5afa201f7), [docs/testnet-results-kit.md](docs/testnet-results-kit.md)).
+
+This repo is not a facilitator and not a wallet. Any facilitator can drop in `PolicyAwareExactStellarScheme`. A conformance suite for that drop-in is planned and is not in the tree yet.
+
+The merchant allowlist and the period cap compose with OpenZeppelin `spending_limit`. They do not replace it. The kit demo installs the allowlist and the v0.8.0 `spending_limit` singleton together.
+
+## Status
+
+| Piece | Status |
+| --- | --- |
+| Policy contracts on testnet (`merchant-allowlist`, `period-cap`) | Done. `period-cap` is deployed and is not installed by the demo template. |
+| Verifier (`PolicyAwareExactStellarScheme`) | Done |
+| SDK, MCP server, `sxp` CLI | Done |
+| Conformance suite | Planned |
+| Upstream PRs to `@x402/stellar` and the OpenZeppelin Relayer plugin | Planned. Not opened. Related reports: [x402#3352](https://github.com/x402-foundation/x402/issues/3352), [x402#3515](https://github.com/x402-foundation/x402/issues/3515), [x402#3399](https://github.com/x402-foundation/x402/pull/3399). |
+| Protocol 30 `W` addresses | In progress, behind `matchMuxedContract` / `MATCH_MUXED_CONTRACT=1` |
+| Audit | Planned |
+| Mainnet | Planned. The MCP server refuses `SXP_NETWORK=mainnet` unless `SXP_ALLOW_MAINNET=1`. |
 
 ## Problem
 
 `ExactStellarScheme` simulates the client transaction and then requires every contract event to be the SEP-41 `transfer`. A smart account runs `__check_auth` before that transfer. Policies emit their own events there (`spending_limit_enforced`, `simple_enforced`), and the reference scan returns `invalid_exact_stellar_payload_event_not_transfer`. The x402 Stellar spec requires no other balance changes. The implementation rejects events that do not move a balance.
 
-The same verify path caps the simulation-derived fee at `maxTransactionFeeStroops`, default **50,000** stroops. A warm smart-account payment costs about **310,000–319,000** stroops (one public run reported **324,039**). A cold account, paying first-touch TTL rent, costs about **5.71 million** stroops. The default ceiling refuses both.
+The same verify path caps the simulation-derived fee at `maxTransactionFeeStroops`. The reference default is **50,000** stroops ([kit run](docs/testnet-results-kit.md), [base-account run](docs/testnet-results.md)). Measured charged fees, in stroops:
 
-`@x402/stellar` is published from [x402-foundation/x402](https://github.com/x402-foundation/x402). [coinbase/x402](https://github.com/coinbase/x402) forks that repository. The open reports are:
+| Run | Cold | Warm |
+| --- | --- | --- |
+| Kit, merchant-allowlist plus `spending_limit` ([docs/testnet-results-kit.md](docs/testnet-results-kit.md)) | 503,028 ([`510bcb56…`](https://stellar.expert/explorer/testnet/tx/510bcb56b4497e2a741de28fb569e6387a965230f002ccdab8e7d160398fa589)), bid 581,130 | 81,462 ([`5f8fa55e…`](https://stellar.expert/explorer/testnet/tx/5f8fa55e4106f2283491484c63079d53b7ace8a532a003b93e5e5c17830e63f1)), bid 96,323 |
+| Base account, `spending_limit` only ([docs/testnet-results.md](docs/testnet-results.md)) | 318,897 ([`2ecdc5d2…`](https://stellar.expert/explorer/testnet/tx/2ecdc5d2ff530b0347a9bf6d8033f162036ccbd9ee435328b84c5adf0d61ea38)), simulated 369,788 | 48,067 ([`eee416ae…`](https://stellar.expert/explorer/testnet/tx/eee416ae7b39839ab689e63ffb2a8e33924f4b6fb906f973eb47778dc16eef01)), simulated 58,328 |
+
+The 50,000 stroop ceiling refuses both runs. The kit cold simulation was 581,130 stroops. The base-account cold simulation was 369,788 stroops.
+
+`@x402/stellar` is published from [x402-foundation/x402](https://github.com/x402-foundation/x402). The open reports are:
 
 - [x402#3352](https://github.com/x402-foundation/x402/issues/3352) — non-transfer events from smart-account policies
 - [x402#3515](https://github.com/x402-foundation/x402/issues/3515) — the 50,000-stroop fee ceiling
@@ -56,12 +126,12 @@ The allowlist is the trust boundary. A policy contract can still misbehave under
 
 The ceiling is the same quantity the reference scheme checks: `minResourceFee + inclusionFeeStroops` (inclusion defaults to 100). It is the most the facilitator account will pay, in stroops.
 
-| Profile | Measured cost | Default cap |
+| Profile | Measured charged fee | Default cap |
 | --- | --- | --- |
-| `warm` | 310,000–319,000; observed settlement 324,039 | 500,000 |
-| `cold` | about 5,710,000 (first-touch rent) | 6,500,000 |
+| `warm` | Kit 81,462 ([`5f8fa55e…`](https://stellar.expert/explorer/testnet/tx/5f8fa55e4106f2283491484c63079d53b7ace8a532a003b93e5e5c17830e63f1)); base account 48,067 ([`eee416ae…`](https://stellar.expert/explorer/testnet/tx/eee416ae7b39839ab689e63ffb2a8e33924f4b6fb906f973eb47778dc16eef01)) | 500,000 |
+| `cold` | Kit 503,028 ([`510bcb56…`](https://stellar.expert/explorer/testnet/tx/510bcb56b4497e2a741de28fb569e6387a965230f002ccdab8e7d160398fa589)); base account 318,897 ([`2ecdc5d2…`](https://stellar.expert/explorer/testnet/tx/2ecdc5d2ff530b0347a9bf6d8033f162036ccbd9ee435328b84c5adf0d61ea38)) | 6,500,000 |
 
-`warm` is the default. `cold` is opt-in because the facilitator spends the rent. `maxTransactionFeeStroops` replaces the profile cap when you set it. `getExtra` publishes the active ceiling, profile, and allowlist for `GET /supported`.
+`warm` is the default. `cold` is opt-in because the facilitator spends the rent. The kit demo sets `FEE_PROFILE=cold`: its cold fee bid was 581,130 stroops, above the warm cap. The base-account run used the cold cap of 6,500,000 stroops ([docs/testnet-results.md](docs/testnet-results.md)). `maxTransactionFeeStroops` replaces the profile cap when you set it. `getExtra` publishes the active ceiling, profile, and allowlist for `GET /supported`.
 
 ## Usage
 
@@ -151,7 +221,7 @@ Both settled payments moved 0.1 XLM from smart account `CA37FAB2OXRQLTMKR36QXMT3
 
 Policies in this repository are built on **stellar-accounts 0.8.0** (soroban-sdk 28.0.0, published 2026-10-20). Per-asset rolling caps use the OpenZeppelin `spending_limit` contract, one `CallContract(token)` rule per asset. This repository does not reimplement that policy. The testnet singleton from the 0.8.0 deployment is `CC3CEYQAP6NPNFIYSWL5MVZRCPJZGWX4XO7WDEJOUVGO2FZX5OONYPA5`.
 
-OpenZeppelin has not planned a recipient-allowlist policy. [stellar-contracts#514](https://github.com/OpenZeppelin/stellar-contracts/issues/514) is a general smart-account tracker, and the nearby policy issues are `spending_limit` (#649), an external generator (#850), and a frequency limit (#858). The finding is written up in [docs/oz-recipient-allowlist.md](docs/oz-recipient-allowlist.md). `contracts/merchant-allowlist-policy` is this repository's policy on the public `Policy` trait. `contracts/period-cap-policy` is a calendar cap (one counter, reset at `anchor_ledger + k * period_ledgers`) plus `per_tx_max`.
+OpenZeppelin's issue tracker has no recipient-allowlist policy today; this repo implements one on their Policy trait (see [docs/oz-recipient-allowlist.md](docs/oz-recipient-allowlist.md)). [stellar-contracts#514](https://github.com/OpenZeppelin/stellar-contracts/issues/514) is a general smart-account tracker, and the nearby policy issues are `spending_limit` (#649), an external generator (#850), and a frequency limit (#858). `contracts/merchant-allowlist-policy` is this repository's policy on the public `Policy` trait. `contracts/period-cap-policy` is a calendar cap (one counter, reset at `anchor_ledger + k * period_ledgers`) plus `per_tx_max`.
 
 Protocol 30 muxed contract addresses (CAP-84, strkey `W`) are decoded in the verifier and matched to the base contract only when `matchMuxedContract` / `MATCH_MUXED_CONTRACT=1` is set. `@stellar/stellar-sdk` 16.4 and soroban-sdk 28 do not ship a `MuxedAddress` type. The on-chain per-id matcher is the cargo feature `p30`.
 
@@ -196,7 +266,8 @@ const receipt = await kit.pay(requirements, {
 
 ```bash
 pnpm --filter @stellar-x402-policies/inspector build
-sxp inspect C... --json
+SXP_SOURCE=GBGJKOPHGQ2OX5VFKEPAPG3QBGYNT3UQ4OQV7QSYXMLDVYSL2V3R73XO \
+  node packages/inspector/dist/cli.js inspect CDS2MQUJNFUEH52JKRA4KKFCR4GMXXTALKRIERUF5OCZM5J4PNZHP4PF --json
 sxp fee requirements.json --account C...
 sxp templates list
 sxp templates apply agent-merchant-allowlist --account C... --params params.json --dry-run
@@ -217,6 +288,16 @@ The MCP `mcpServers` snippet is in the section above. `SXP_NETWORK=mainnet` refu
 - Warm and cold fee ceilings bound what a payer can make the facilitator spend.
 - `sxp inspect` warns when an agent rule has no expiry, when spending history is above 80% of 815 entries, and when a policy contract is missing from the verifier allowlist.
 
+The full write-up is [docs/threat-model.md](docs/threat-model.md).
+
+### Known limitations
+
+- The reference verifier's default ceiling is 50,000 stroops. Both measured runs exceed it ([docs/testnet-results-kit.md](docs/testnet-results-kit.md), [docs/testnet-results.md](docs/testnet-results.md)).
+- `period-cap` is deployed on testnet and is not installed by the demo template.
+- Protocol 30 `W` address matching is off unless `matchMuxedContract` / `MATCH_MUXED_CONTRACT=1`. The on-chain per-id matcher is the cargo feature `p30`.
+- There is no conformance suite, no audit, and no mainnet deployment.
+- Upstream changes for `@x402/stellar` and an OpenZeppelin Relayer plugin are not opened. The related reports are [x402#3352](https://github.com/x402-foundation/x402/issues/3352), [x402#3515](https://github.com/x402-foundation/x402/issues/3515), and [x402#3399](https://github.com/x402-foundation/x402/pull/3399).
+
 ## Development
 
 Node.js 22 and pnpm 10.
@@ -229,9 +310,9 @@ pnpm typecheck
 pnpm test
 ```
 
-## Future work
+## AI assistance
 
-A conformance suite across more smart-account policies is the next piece. An optional extension can register one more allowlisted policy contract beside the policies this package already accepts. That extension stays outside this package.
+AI coding assistants were used for parts of the implementation and the docs. Every contract change is human-reviewed and tested on testnet.
 
 ## License
 
