@@ -655,6 +655,15 @@ async function simulateRaw(tx: Transaction): Promise<RawSim> {
   return body.result;
 }
 
+function simulationSummary(error: string | undefined): string {
+  if (error === undefined || error.length === 0) {
+    return "none";
+  }
+  const found = [...error.matchAll(/Error\((?:Contract, #\d+|Auth, \w+)\)/g)].map((match) => match[0]);
+  const unique = [...new Set(found)];
+  return unique.length > 0 ? unique.join("; ") : (error.split("\n")[0] ?? "error");
+}
+
 function manualAuth(smartAccount: string, asset: string, merchant: string, amount: bigint): xdr.SorobanAuthorizationEntry {
   const nonce = BigInt(`0x${randomBytes(6).toString("hex")}`);
   return new xdr.SorobanAuthorizationEntry({
@@ -727,10 +736,6 @@ async function forcePanic(input: {
     throw new Error(`force-submit was not accepted: ${code}`);
   }
   const polled = await input.server.pollTransaction(sent.hash, { attempts: 40 });
-  const topics =
-    polled.status === rpc.Api.GetTransactionStatus.FAILED
-      ? eventLabels(polled.diagnosticEventsXdr ?? []).join(", ")
-      : "";
   const feeCharged =
     polled.status === rpc.Api.GetTransactionStatus.NOT_FOUND
       ? 0
@@ -739,7 +744,7 @@ async function forcePanic(input: {
     hash: sent.hash,
     status: polled.status,
     feeCharged,
-    detail: `signed simulation: ${enforced.error ?? "none"}; on-chain: ${polled.status}${topics.length > 0 ? ` (${topics})` : ""}`.trim(),
+    detail: `signed simulation: ${simulationSummary(enforced.error)}; on-chain: ${polled.status}`,
     url: expertTx(sent.hash),
   };
 }
@@ -937,7 +942,9 @@ async function main(): Promise<void> {
       `| A 0.1 XLM warm | ${warm.txHash === undefined ? JSON.stringify(warm) : "settled"} | ${warmFee.charged || warm.feeCharged || ""} | ${warmFee.bid} | ${warmHash.length === 0 ? "" : `[${warmHash}](${expertTx(warmHash)})`} |`,
       `| A 0.15 XLM | \`${String(over.status ?? "")} ${String(over.reason ?? over.message ?? "")}\` | | | |`,
       `| B 0.1 XLM precheck | \`${String(blocked.status ?? "")} ${String(blocked.reason ?? blocked.message ?? "")}\` | | | |`,
-      `| B 0.1 XLM force-submit | ${forced.status} ${forced.detail} | ${forced.feeCharged} | | [${forced.hash}](${forced.url}) |`,
+      `| B 0.1 XLM force-submit | ${forced.status} | ${forced.feeCharged} | | [${forced.hash}](${forced.url}) |`,
+      "",
+      `Force-submit of merchant B bypasses the MCP precheck. ${forced.detail}.`,
       "",
       "## sxp inspect before",
       "",
