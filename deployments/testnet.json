@@ -1,0 +1,46 @@
+{
+  "network": "testnet",
+  "networkPassphrase": "Test SDF Network ; September 2015",
+  "rpcUrl": "https://soroban-testnet.stellar.org",
+  "stellarAccounts": "0.8.0",
+  "sorobanSdk": "28.0.0",
+  "deployedAt": "2026-10-27T01:15:23.830Z",
+  "note": "The same merchant wasm was also deployed as CDHXCF2BT6FQRDCFRGRIEUUP3FZPHIH6J42NGDO6V2IJJPLSQ2B32MLN (upload 4f6f690bb6e2d38dfe5b16e082148e30cd363cfb9844ccbfe8601a7407870df6, deploy 6edb3a63e0b517609299aabbf0c066cf1aaec1b7a3cc413a779b7bf7700da2dd) before a sequence retry. contracts.merchantAllowlist is the recorded instance.",
+  "deployer": "GCV3S4NA5Q3EZ5UZPUZMDLQWOP6FU52TEOCUNAZWYIKMFHHDWCH4LD4U",
+  "contracts": {
+    "merchantAllowlist": {
+      "contractId": "CAP53MP7CWG3TTOQNMICVSNIBFMNEE7HYNOK4O2OP3FVBBB4YK6UAZP6",
+      "wasmHash": "37ee5ee8184a7860b4f13a029a3301639ce54b41eee65360e2f60111e0fba141",
+      "wasmBytes": 17605,
+      "upload": {
+        "hash": "a676489eebf1f74f1ad60fcb8d7048ea328d03b95423df4d563c03aace8b22d2",
+        "feeCharged": 44674,
+        "ledger": 5408024,
+        "url": "https://stellar.expert/explorer/testnet/tx/a676489eebf1f74f1ad60fcb8d7048ea328d03b95423df4d563c03aace8b22d2"
+      },
+      "deploy": {
+        "hash": "68cdbdd7b5392da6b42d8dc8c8c80b432f2731aa9a4bb9c60c06c072214ab806",
+        "feeCharged": 14922,
+        "ledger": 5408025,
+        "url": "https://stellar.expert/explorer/testnet/tx/68cdbdd7b5392da6b42d8dc8c8c80b432f2731aa9a4bb9c60c06c072214ab806"
+      }
+    },
+    "periodCap": {
+      "contractId": "CB2VQO2NYP4DJBPNCZGRGEUKIUCK7BJW66OXEPDHV7RJT2ICW23X3EL5",
+      "wasmHash": "da75bb6a574dea02688af68f4d7015cf8806cd6cea52a62d8670b754e804a807",
+      "wasmBytes": 13356,
+      "upload": {
+        "hash": "05e7f916b2db59610fa2b034c736dc7fc0c751e2dea1a9b8037c896291ddedad",
+        "feeCharged": 34289,
+        "ledger": 5408026,
+        "url": "https://stellar.expert/explorer/testnet/tx/05e7f916b2db59610fa2b034c736dc7fc0c751e2dea1a9b8037c896291ddedad"
+      },
+      "deploy": {
+        "hash": "825959c898cf6c2acc4ed55a8f10864ffab914e0519a260618f681e48bec56d8",
+        "feeCharged": 14891,
+        "ledger": 5408027,
+        "url": "https://stellar.expert/explorer/testnet/tx/825959c898cf6c2acc4ed55a8f10864ffab914e0519a260618f681e48bec56d8"
+      }
+    }
+  }
+}

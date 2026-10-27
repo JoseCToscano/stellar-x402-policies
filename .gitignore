@@ -5,3 +5,5 @@ coverage/
 .env
 .env.local
 .DS_Store
+target/
+test_snapshots/

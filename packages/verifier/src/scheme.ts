@@ -36,6 +36,11 @@ export interface PolicyAwareSchemeOptions {
   warmCapStroops?: number;
   coldCapStroops?: number;
   maxTransactionFeeStroops?: number;
+  /**
+   * Accept a CAP-84 W `payTo` when the simulated transfer's `to` is that
+   * address's base contract. Default false until Protocol 30 is live.
+   */
+  matchMuxedContract?: boolean;
 }
 
 interface ReferenceEventCheck {
@@ -73,6 +78,7 @@ export function filterSimulationEvents(
   expectedAsset: string,
   policyContracts: ReadonlySet<string>,
   policyEventTopics: ReadonlySet<string>,
+  matchMuxedContract = false,
 ): VerifyResponse | undefined {
   const list = Array.isArray(events) ? events : [];
   const views: SimulationEventView[] = [];
@@ -104,6 +110,7 @@ export function filterSimulationEvents(
     amount: expectedAmount,
     policyContracts,
     policyEventTopics,
+    matchMuxedContract,
   });
   const firstRejected = summary.rejected[0];
   if (firstRejected !== undefined) {
@@ -131,6 +138,7 @@ function installPolicyEventFilter(
   scheme: PolicyAwareExactStellarScheme,
   policyContracts: ReadonlySet<string>,
   policyEventTopics: ReadonlySet<string>,
+  matchMuxedContract: boolean,
 ): void {
   const host = scheme as unknown as ReferenceEventCheck;
   const original = host[REFERENCE_EVENT_METHOD];
@@ -156,6 +164,7 @@ function installPolicyEventFilter(
       expectedAsset,
       policyContracts,
       policyEventTopics,
+      matchMuxedContract,
     );
   };
 }
@@ -174,6 +183,7 @@ export class PolicyAwareExactStellarScheme extends ExactStellarScheme {
   readonly feeProfile: ResolvedFeeProfile;
   readonly policyContracts: readonly string[];
   readonly policyEventTopics: readonly string[];
+  readonly matchMuxedContract: boolean;
 
   constructor(signers: FacilitatorStellarSigner[], options: PolicyAwareSchemeOptions = {}) {
     const policyContracts = normalizePolicyContracts(options.policyContracts ?? []);
@@ -195,7 +205,13 @@ export class PolicyAwareExactStellarScheme extends ExactStellarScheme {
     this.feeProfile = feeProfile;
     this.policyContracts = policyContracts;
     this.policyEventTopics = policyEventTopics;
-    installPolicyEventFilter(this, new Set(policyContracts), new Set(policyEventTopics));
+    this.matchMuxedContract = options.matchMuxedContract === true;
+    installPolicyEventFilter(
+      this,
+      new Set(policyContracts),
+      new Set(policyEventTopics),
+      this.matchMuxedContract,
+    );
   }
 
   override getExtra(network: Network): Record<string, unknown> | undefined {
@@ -207,6 +223,7 @@ export class PolicyAwareExactStellarScheme extends ExactStellarScheme {
       measuredFeeStroops: this.feeProfile.measuredStroops,
       policyEventContracts: [...this.policyContracts],
       policyEventTopics: [...this.policyEventTopics],
+      matchMuxedContract: this.matchMuxedContract,
     };
   }
 }

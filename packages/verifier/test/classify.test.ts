@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 
 import { classifySimulationEvents, type SimulationEventView } from "../src/classify.js";
 import { INVALID_REASON } from "../src/constants.js";
+import { encodeContractStrkey, encodeMuxedContract } from "../src/muxed.js";
 import { ASSET, FROM, OTHER, POLICY, TO } from "./fixtures.js";
 
 const AMOUNT = 1000n;
@@ -35,15 +36,16 @@ function policy(
 
 function classify(
   events: SimulationEventView[],
-  options: { contracts?: string[]; topics?: string[] } = {},
+  options: { contracts?: string[]; topics?: string[]; to?: string; matchMuxedContract?: boolean } = {},
 ) {
   return classifySimulationEvents(events, {
     asset: ASSET,
     from: FROM,
-    to: TO,
+    to: options.to ?? TO,
     amount: AMOUNT,
     policyContracts: new Set(options.contracts ?? [POLICY]),
     policyEventTopics: new Set(options.topics ?? []),
+    matchMuxedContract: options.matchMuxedContract,
   });
 }
 
@@ -161,6 +163,21 @@ describe("classifySimulationEvents", () => {
     ]);
     expect(summary.transferIndexes).toEqual([]);
     expect(summary.rejected[0]?.reason).toBe("balance_moving_topic");
+  });
+
+  it("matches a W destination to its base contract only when the flag is on", () => {
+    const contractId = Buffer.alloc(32, 4);
+    const base = encodeContractStrkey(contractId);
+    const muxed = encodeMuxedContract(contractId, 42n);
+    const event = transfer({ topics: ["transfer", FROM, base] });
+    expect(classify([event], { to: muxed }).rejected[0]?.reason).toBe("transfer_mismatch_to");
+    expect(
+      classify([event], { to: muxed, matchMuxedContract: true }).transferIndexes,
+    ).toEqual([0]);
+    const other = encodeMuxedContract(Buffer.alloc(32, 5), 42n);
+    expect(
+      classify([event], { to: other, matchMuxedContract: true }).rejected[0]?.reason,
+    ).toBe("transfer_mismatch_to");
   });
 
   it("collects two matching transfers so the reference scan can reject the duplicate", () => {

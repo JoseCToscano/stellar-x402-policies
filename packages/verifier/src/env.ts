@@ -68,5 +68,9 @@ export function readPolicyAwareOptions(env: NodeJS.ProcessEnv): PolicyAwareSchem
   if (maxTransactionFeeStroops !== undefined) {
     options.maxTransactionFeeStroops = maxTransactionFeeStroops;
   }
+  const muxed = env.MATCH_MUXED_CONTRACT?.trim().toLowerCase();
+  if (muxed === "1" || muxed === "true") {
+    options.matchMuxedContract = true;
+  }
   return options;
 }

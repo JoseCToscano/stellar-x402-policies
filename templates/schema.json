@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JoseCToscano/stellar-x402-policies/templates/schema.json",
+  "title": "Agent spending-policy template",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "ownerRule", "agentRules"],
+  "properties": {
+    "name": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "params": {
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [{ "type": "string" }, { "type": "integer", "minimum": 0 }]
+      }
+    },
+    "ownerRule": { "$ref": "#/$defs/ownerRule" },
+    "agentRules": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/agentRule" }
+    }
+  },
+  "$defs": {
+    "placeholderOrUint": {
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        { "type": "integer", "minimum": 0 }
+      ]
+    },
+    "ownerRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "name", "signer"],
+      "properties": {
+        "type": { "const": "Default" },
+        "name": { "type": "string", "minLength": 1 },
+        "signer": { "enum": ["ed25519", "passkey"] }
+      }
+    },
+    "agentRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "context", "signer", "validUntil", "policies"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "context": { "$ref": "#/$defs/callContract" },
+        "signer": { "const": "agent" },
+        "validUntil": { "$ref": "#/$defs/placeholderOrUint" },
+        "policies": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/policy" }
+        }
+      }
+    },
+    "callContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "token"],
+      "properties": {
+        "type": { "const": "CallContract" },
+        "token": { "type": "string", "minLength": 1 }
+      }
+    },
+    "policy": {
+      "oneOf": [
+        { "$ref": "#/$defs/spendingLimit" },
+        { "$ref": "#/$defs/merchantAllowlist" },
+        { "$ref": "#/$defs/periodCap" }
+      ]
+    },
+    "spendingLimit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "spendingLimit", "periodLedgers"],
+      "properties": {
+        "kind": { "const": "spending_limit" },
+        "spendingLimit": { "$ref": "#/$defs/placeholderOrUint" },
+        "periodLedgers": { "$ref": "#/$defs/placeholderOrUint" }
+      }
+    },
+    "merchantAllowlist": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "merchants"],
+      "properties": {
+        "kind": { "const": "merchant_allowlist" },
+        "perTxMax": { "$ref": "#/$defs/placeholderOrUint" },
+        "merchants": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/merchant" }
+        }
+      }
+    },
+    "merchant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["address", "cap", "periodLedgers"],
+      "properties": {
+        "address": { "type": "string", "minLength": 1 },
+        "cap": { "$ref": "#/$defs/placeholderOrUint" },
+        "periodLedgers": { "$ref": "#/$defs/placeholderOrUint" }
+      }
+    },
+    "periodCap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "cap", "periodLedgers", "anchorLedger"],
+      "properties": {
+        "kind": { "const": "period_cap" },
+        "cap": { "$ref": "#/$defs/placeholderOrUint" },
+        "periodLedgers": { "$ref": "#/$defs/placeholderOrUint" },
+        "anchorLedger": { "$ref": "#/$defs/placeholderOrUint" },
+        "perTxMax": { "$ref": "#/$defs/placeholderOrUint" }
+      }
+    }
+  }
+}

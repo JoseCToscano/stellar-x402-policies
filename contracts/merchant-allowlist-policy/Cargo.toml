@@ -1,0 +1,23 @@
+[package]
+name = "merchant-allowlist-policy"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+description = "Smart-account policy that caps transfers to an allowlisted set of merchants."
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+
+[features]
+# Protocol 30 muxed contract (W) destinations. soroban-sdk 28 has no
+# MuxedAddress type, so per-id matching stays behind this feature.
+p30 = []
+
+[dependencies]
+soroban-sdk = { workspace = true }
+stellar-accounts = { workspace = true }
+
+[dev-dependencies]
+soroban-sdk = { workspace = true, features = ["testutils"] }
