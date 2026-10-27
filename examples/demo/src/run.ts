@@ -232,6 +232,37 @@ async function submitSourceAccount(
   throw new Error(last);
 }
 
+async function submitAssembled(
+  server: rpc.Server,
+  source: Keypair,
+  operation: xdr.Operation,
+  simulation: rpc.Api.SimulateTransactionSuccessResponse,
+  label: string,
+): Promise<ChainTx> {
+  let last = "not submitted";
+  for (let attempt = 1; attempt <= 6; attempt += 1) {
+    const account = await waitForAccount(server, source.publicKey());
+    const tx = new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase: PASSPHRASE })
+      .addOperation(operation)
+      .setTimeout(MAX_TIMEOUT_SECONDS)
+      .build();
+    const prepared = rpc.assembleTransaction(tx, simulation).build();
+    prepared.sign(source);
+    try {
+      const sent = await sendSigned(server, prepared, label);
+      await sleep(1_000);
+      return sent;
+    } catch (error) {
+      last = error instanceof Error ? error.message : "submit failed";
+      if (!last.includes("txBadSeq") && !last.includes("TRY_AGAIN")) {
+        throw error;
+      }
+      await sleep(1_000 * attempt);
+    }
+  }
+  throw new Error(last);
+}
+
 async function deployAccount(
   server: rpc.Server,
   owner: Keypair,
@@ -341,9 +372,7 @@ async function installRule(
     .setTimeout(MAX_TIMEOUT_SECONDS)
     .build();
   const enforced = requireSimulation(await server.simulateTransaction(rebuilt), "add_context_rule auth");
-  const prepared = rpc.assembleTransaction(rebuilt, enforced).build();
-  prepared.sign(owner);
-  return sendSigned(server, prepared, "install merchant allowlist");
+  return submitAssembled(server, owner, operation, enforced, "install merchant allowlist");
 }
 
 async function buildSignedPayment(input: {
