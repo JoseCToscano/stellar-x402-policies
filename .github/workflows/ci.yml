@@ -27,3 +27,20 @@ jobs:
       - run: pnpm build
       - run: pnpm typecheck
       - run: pnpm test
+
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32v1-none
+      - name: Install stellar-cli
+        run: |
+          curl -fsSL -o /tmp/stellar-cli.tar.gz \
+            https://github.com/stellar/stellar-cli/releases/download/v28.1.0/stellar-cli-28.1.0-x86_64-unknown-linux-gnu.tar.gz
+          sudo tar -xzf /tmp/stellar-cli.tar.gz -C /usr/local/bin
+          stellar version
+      - run: cargo test --manifest-path contracts/Cargo.toml --locked
+      - run: cargo test --manifest-path contracts/Cargo.toml --locked -p merchant-allowlist-policy --features p30
+      - run: stellar contract build --manifest-path contracts/Cargo.toml --locked

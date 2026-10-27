@@ -121,6 +121,23 @@ The same unsigned payment was rejected by `ExactStellarScheme` and then settled 
 
 Both settled payments moved 0.1 XLM from smart account `CA37FAB2OXRQLTMKR36QXMT3JREOVIEDDK7SW3YCAB6NRZZNZUG7K7BV` on 2026-10-26 (ledgers 5,405,125 and 5,405,126). The simulated fee is `minResourceFee` plus the 100-stroop inclusion buffer. The charged fee is lower because the network refunds unused resources.
 
+## Accounts release
+
+Policies in this repository are built on **stellar-accounts 0.8.0** (soroban-sdk 28.0.0, published 2026-10-20). Per-asset rolling caps use the OpenZeppelin `spending_limit` contract, one `CallContract(token)` rule per asset. This repository does not reimplement that policy. The testnet singleton from the 0.8.0 deployment is `CC3CEYQAP6NPNFIYSWL5MVZRCPJZGWX4XO7WDEJOUVGO2FZX5OONYPA5`.
+
+OpenZeppelin has not planned a recipient-allowlist policy. [stellar-contracts#514](https://github.com/OpenZeppelin/stellar-contracts/issues/514) is a general smart-account tracker, and the nearby policy issues are `spending_limit` (#649), an external generator (#850), and a frequency limit (#858). The finding is written up in [docs/oz-recipient-allowlist.md](docs/oz-recipient-allowlist.md). `contracts/merchant-allowlist-policy` is this repository's policy on the public `Policy` trait. `contracts/period-cap-policy` is a calendar cap (one counter, reset at `anchor_ledger + k * period_ledgers`) plus `per_tx_max`.
+
+Protocol 30 muxed contract addresses (CAP-84, strkey `W`) are decoded in the verifier and matched to the base contract only when `matchMuxedContract` / `MATCH_MUXED_CONTRACT=1` is set. `@stellar/stellar-sdk` 16.4 and soroban-sdk 28 do not ship a `MuxedAddress` type. The on-chain per-id matcher is the cargo feature `p30`.
+
+Testnet deployments (Friendbot deployer, seeds not stored) are in [deployments/testnet.json](deployments/testnet.json):
+
+| Policy | Contract | Wasm hash |
+| --- | --- | --- |
+| merchant-allowlist | `CAP53MP7CWG3TTOQNMICVSNIBFMNEE7HYNOK4O2OP3FVBBB4YK6UAZP6` | `37ee5ee8184a7860b4f13a029a3301639ce54b41eee65360e2f60111e0fba141` |
+| period-cap | `CB2VQO2NYP4DJBPNCZGRGEUKIUCK7BJW66OXEPDHV7RJT2ICW23X3EL5` | `da75bb6a574dea02688af68f4d7015cf8806cd6cea52a62d8670b754e804a807` |
+
+Allowance templates live in `templates/`. Each one keeps a `Default` owner rule (`ed25519` or `passkey`) and sets `validUntil` on the agent rule.
+
 ## Development
 
 Node.js 22 and pnpm 10.

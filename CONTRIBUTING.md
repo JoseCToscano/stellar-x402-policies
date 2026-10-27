@@ -6,6 +6,7 @@ Thanks for helping smart accounts pay over x402. This repository is Apache-2.0.
 
 - Node.js 22 or newer
 - pnpm 10 (`packageManager` in the root `package.json`)
+- Rust stable with the `wasm32v1-none` target (`rust-toolchain.toml`)
 
 ```bash
 pnpm install
@@ -15,11 +16,15 @@ pnpm typecheck
 pnpm test
 ```
 
-`pnpm test` runs the vitest suite in `packages/core`. The tests cover event classification and the warm and cold fee caps, and they compare this package with `ExactStellarScheme` from `@x402/stellar` 2.28.x.
+`pnpm test` runs the vitest suite in `packages/verifier`. The tests cover event classification, muxed-contract (W) recipient matching, and the warm and cold fee caps, and they compare this package with `ExactStellarScheme` from `@x402/stellar` 2.28.x.
+
+`cargo test --manifest-path contracts/Cargo.toml` runs the Soroban policy tests. `cargo test --manifest-path contracts/Cargo.toml -p merchant-allowlist-policy --features p30` runs the Protocol 30 muxed-destination matcher. Wasm builds use `stellar contract build` (stellar-cli 28.1, which sets the spec-shaking flag soroban-sdk 28 requires).
 
 ## Layout
 
-- `packages/core` — `stellar-x402-policies`
+- `packages/verifier` — `stellar-x402-policies`
+- `contracts/merchant-allowlist-policy` and `contracts/period-cap-policy` — Soroban policies on stellar-accounts 0.8.0
+- `templates/` — allowance templates compiled by the kit
 - `examples/facilitator` — `GET /supported`, `POST /verify`, `POST /settle`
 - `examples/testnet-demo` — config printout, plus verify and optional settle on testnet
 
@@ -37,7 +42,7 @@ Keep the reference checks in `ExactStellarScheme` for the single transfer, payer
 
 ## CI
 
-GitHub Actions runs lint, build, typecheck, and test on pull requests. Run the same commands locally before pushing.
+GitHub Actions runs lint, build, typecheck, test, and `cargo test` (including the `p30` feature) on pull requests. Run the same commands locally before pushing.
 
 ## License
 

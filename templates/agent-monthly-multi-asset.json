@@ -1,0 +1,56 @@
+{
+  "name": "agent-monthly-multi-asset",
+  "description": "One CallContract rule per asset. Each rule carries period-cap-policy with a calendar window of 518400 ledgers (17280 x 30, about 30 days) and a per-transfer max. Rolling per-asset caps, when wanted, stay on OpenZeppelin spending_limit; this template uses the calendar counter.",
+  "params": {
+    "xlm": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+    "usdc": "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
+    "monthlyCap": "100000000",
+    "perTxMax": "10000000",
+    "periodLedgers": 518400,
+    "anchorLedger": "{{anchorLedger}}",
+    "validUntil": "{{validUntil}}"
+  },
+  "ownerRule": {
+    "type": "Default",
+    "name": "owner",
+    "signer": "passkey"
+  },
+  "agentRules": [
+    {
+      "name": "xlm-month",
+      "context": {
+        "type": "CallContract",
+        "token": "{{xlm}}"
+      },
+      "signer": "agent",
+      "validUntil": "{{validUntil}}",
+      "policies": [
+        {
+          "kind": "period_cap",
+          "cap": "{{monthlyCap}}",
+          "periodLedgers": "{{periodLedgers}}",
+          "anchorLedger": "{{anchorLedger}}",
+          "perTxMax": "{{perTxMax}}"
+        }
+      ]
+    },
+    {
+      "name": "usdc-month",
+      "context": {
+        "type": "CallContract",
+        "token": "{{usdc}}"
+      },
+      "signer": "agent",
+      "validUntil": "{{validUntil}}",
+      "policies": [
+        {
+          "kind": "period_cap",
+          "cap": "{{monthlyCap}}",
+          "periodLedgers": "{{periodLedgers}}",
+          "anchorLedger": "{{anchorLedger}}",
+          "perTxMax": "{{perTxMax}}"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "name": "agent-daily-usdc",
+  "description": "USDC rolling 24h cap via OpenZeppelin spending_limit (one CallContract rule, not reimplemented here) plus a per-transfer max from period-cap-policy. The period cap uses the same 17280-ledger day and the same amount, so a calendar day cannot exceed the rolling budget either. 17280 ledgers is about 24 hours at a 5 second close.",
+  "params": {
+    "usdc": "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
+    "dailyCap": "10000000",
+    "perTxMax": "2000000",
+    "periodLedgers": 17280,
+    "anchorLedger": "{{anchorLedger}}",
+    "validUntil": "{{validUntil}}"
+  },
+  "ownerRule": {
+    "type": "Default",
+    "name": "owner",
+    "signer": "ed25519"
+  },
+  "agentRules": [
+    {
+      "name": "usdc-daily",
+      "context": {
+        "type": "CallContract",
+        "token": "{{usdc}}"
+      },
+      "signer": "agent",
+      "validUntil": "{{validUntil}}",
+      "policies": [
+        {
+          "kind": "spending_limit",
+          "spendingLimit": "{{dailyCap}}",
+          "periodLedgers": "{{periodLedgers}}"
+        },
+        {
+          "kind": "period_cap",
+          "cap": "{{dailyCap}}",
+          "periodLedgers": "{{periodLedgers}}",
+          "anchorLedger": "{{anchorLedger}}",
+          "perTxMax": "{{perTxMax}}"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "name": "agent-merchant-allowlist",
+  "description": "Native-asset payments to an allowlisted set of merchants. Each merchant has its own rolling cap and period. perTxMax applies to every transfer. The asset-wide rolling cap is OpenZeppelin spending_limit on the same CallContract rule (default 1 XLM per 17280 ledgers). Merchants that are not listed are rejected by merchant-allowlist-policy.",
+  "params": {
+    "xlm": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+    "assetCap": "10000000",
+    "periodLedgers": 17280,
+    "perTxMax": "1500000",
+    "merchantCap": "3000000",
+    "merchantA": "{{merchantA}}",
+    "validUntil": "{{validUntil}}"
+  },
+  "ownerRule": {
+    "type": "Default",
+    "name": "owner",
+    "signer": "ed25519"
+  },
+  "agentRules": [
+    {
+      "name": "xlm-merchants",
+      "context": {
+        "type": "CallContract",
+        "token": "{{xlm}}"
+      },
+      "signer": "agent",
+      "validUntil": "{{validUntil}}",
+      "policies": [
+        {
+          "kind": "spending_limit",
+          "spendingLimit": "{{assetCap}}",
+          "periodLedgers": "{{periodLedgers}}"
+        },
+        {
+          "kind": "merchant_allowlist",
+          "perTxMax": "{{perTxMax}}",
+          "merchants": [
+            {
+              "address": "{{merchantA}}",
+              "cap": "{{merchantCap}}",
+              "periodLedgers": "{{periodLedgers}}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

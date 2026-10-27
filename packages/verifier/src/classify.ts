@@ -4,6 +4,7 @@
  */
 
 import { BALANCE_MOVING_TOPIC_SET, INVALID_REASON } from "./constants.js";
+import { sameTransferRecipient } from "./muxed.js";
 
 export type EventClassification = "transfer" | "allowed_policy" | "rejected" | "ignored";
 
@@ -31,6 +32,12 @@ export interface ClassifyContext {
    * first-topic symbols. Balance-moving symbols are never accepted here.
    */
   policyEventTopics?: ReadonlySet<string>;
+  /**
+   * When true, a CAP-84 W address matches the base contract in the transfer
+   * event. Off unless the caller opts in. `@stellar/stellar-sdk` 16.4 has no
+   * `MuxedAddress` type; decoding lives in `muxed.ts`.
+   */
+  matchMuxedContract?: boolean;
 }
 
 export interface ClassifiedSimulationEvent {
@@ -143,7 +150,7 @@ function classifyOne(
     if (from !== context.from) {
       return rejected(index, contractId, topic, "transfer_mismatch_from", INVALID_REASON.wrongFrom);
     }
-    if (to !== context.to) {
+    if (!sameTransferRecipient(context.to, to, context.matchMuxedContract === true)) {
       return rejected(index, contractId, topic, "transfer_mismatch_to", INVALID_REASON.wrongTo);
     }
     const amount = asAmount(event.data);
