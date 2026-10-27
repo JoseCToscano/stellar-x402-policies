@@ -13,7 +13,7 @@
     "typecheck": "pnpm -r --if-present typecheck",
     "test": "pnpm -r --if-present test",
     "facilitator": "pnpm --filter stellar-x402-policies build && pnpm --filter stellar-x402-facilitator start",
-    "demo": "pnpm --filter stellar-x402-policies build && pnpm --filter stellar-x402-testnet-demo demo",
+    "demo": "pnpm --filter stellar-x402-policies build && pnpm --filter @stellar-x402-policies/sdk build && pnpm --filter @stellar-x402-policies/mcp build && pnpm --filter @stellar-x402-policies/inspector build && pnpm --filter stellar-x402-facilitator build && pnpm --filter stellar-x402-policies-demo build && pnpm --filter stellar-x402-policies-demo demo",
     "live": "pnpm --filter stellar-x402-policies build && pnpm --filter stellar-x402-facilitator build && pnpm --filter stellar-x402-testnet-demo build && pnpm --filter stellar-x402-testnet-demo live"
   },
   "devDependencies": {

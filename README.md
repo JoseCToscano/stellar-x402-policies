@@ -20,19 +20,19 @@ The same verify path caps the simulation-derived fee at `maxTransactionFeeStroop
 
 ```mermaid
 flowchart LR
-  A[Agent or app] -->|x402 request| R[Resource server]
-  R -->|402 plus requirements| A
-  A -->|signed payment payload| F[Facilitator]
+  Agent[MCP agent] --> MCP[sxp MCP server]
+  CLI[sxp CLI] --> SDK[SpendingPolicyKit]
+  MCP --> SDK
+  SDK -->|precheck and auth entry| F[Facilitator]
   F --> P[PolicyAwareExactStellarScheme]
   P -->|simulate| RPC[Soroban RPC]
   RPC --> SA[Smart account __check_auth]
-  SA --> POL[Allowlisted policy contracts]
+  SA --> SL[spending_limit]
+  SA --> MA[merchant-allowlist]
+  SA --> PC[period-cap]
   P --> C[Classify events]
-  C -->|one exact transfer| REF[ExactStellarScheme checks]
-  C -->|allowlisted policy event| OK[Keep verifying]
-  C -->|other contract event| REJ[Reject]
-  P --> FEE[Warm or cold fee cap]
-  REF -->|settle| NET[Stellar network]
+  C -->|one exact transfer| OK[Settle]
+  C -->|other balance move| REJ[Reject]
 ```
 
 `PolicyAwareExactStellarScheme` subclasses the reference facilitator scheme. On `@x402/stellar` 2.28.x the event scan is `validateSimulationEvents`. This package replaces that method, classifies each diagnostic event, drops allowlisted policy events, and calls the original scan for everything else. Auth checks, the single-transfer rule, sub-invocation rejection, and the fee comparison stay in the reference scheme. The fee comparison uses a higher ceiling.
@@ -129,7 +129,7 @@ Build the server first with `pnpm --filter @stellar-x402-policies/mcp build`. Th
 
 ```bash
 cp .env.example .env
-pnpm demo
+pnpm --filter stellar-x402-testnet-demo demo
 ```
 
 ## Live on testnet
@@ -164,6 +164,59 @@ Testnet deployments (Friendbot deployer, seeds not stored) are in [deployments/t
 
 Allowance templates live in `templates/`. Each one keeps a `Default` owner rule (`ed25519` or `passkey`) and sets `validUntil` on the agent rule.
 
+## Agent spending-policy kit
+
+The kit is the client side of the verifier. `packages/sdk` builds the auth entry and refuses a payment locally when a policy would reject it. `packages/mcp` exposes that to an agent. `packages/inspector` is the `sxp` CLI.
+
+```typescript
+import { Ed25519Signer, SpendingPolicyKit } from "@stellar-x402-policies/sdk";
+import { Keypair } from "@stellar/stellar-sdk";
+
+const kit = new SpendingPolicyKit({
+  rpcUrl: "https://soroban-testnet.stellar.org",
+  networkPassphrase: "Test SDF Network ; September 2015",
+  facilitatorUrl: "http://127.0.0.1:4020",
+  sourceAccount: "G...",
+  verifier: "CAAVTMCBXEIBPR64EAASKFXERVPYFZA2JYP5A3BG6PESWEFUJX5IHKN4",
+  agentAccount: "G...",
+});
+const report = await kit.inspect("C...");
+const fee = await kit.estimateFee(requirements, "C...");
+const decision = await kit.precheck(requirements, "C...");
+const receipt = await kit.pay(requirements, {
+  signer: new Ed25519Signer(Keypair.fromSecret(process.env.SXP_AGENT_SECRET ?? "")),
+  maxAmount: 2_000_000n,
+  account: "C...",
+});
+```
+
+`SXP_AGENT_SECRET` is the agent key. The owner key stays out of the MCP server. `pnpm demo` runs the testnet script in `examples/demo`: Friendbot keys, a v0.8.0 smart account, merchant A at 0.3 XLM/day, and the MCP pay sequence. Results land in [docs/testnet-results-kit.md](docs/testnet-results-kit.md).
+
+### CLI
+
+```bash
+pnpm --filter @stellar-x402-policies/inspector build
+sxp inspect C... --json
+sxp fee requirements.json --account C...
+sxp templates list
+sxp templates apply agent-merchant-allowlist --account C... --params params.json --dry-run
+sxp allowlist export
+```
+
+`sxp allowlist export` prints `X402_POLICY_EVENT_CONTRACTS` from [deployments/testnet.json](deployments/testnet.json). The facilitator reads that name and `POLICY_CONTRACT_IDS`.
+
+The MCP `mcpServers` snippet is in the section above. `SXP_NETWORK=mainnet` refuses to start unless `SXP_ALLOW_MAINNET=1`.
+
+### Security
+
+[docs/threat-model.md](docs/threat-model.md) is the kit's threat model. The short version:
+
+- The verifier still requires exactly one `transfer` and drops only non-balance-moving events from allowlisted policy contracts.
+- Caps, the merchant allowlist, `valid_until`, and the per-transfer max are enforced in the account, so a prompt cannot raise them.
+- The MCP process holds the agent key and never the owner key. A short `valid_until` limits a leaked agent key.
+- Warm and cold fee ceilings bound what a payer can make the facilitator spend.
+- `sxp inspect` warns when an agent rule has no expiry, when spending history is above 80% of 815 entries, and when a policy contract is missing from the verifier allowlist.
+
 ## Development
 
 Node.js 22 and pnpm 10.
@@ -178,7 +231,7 @@ pnpm test
 
 ## Future work
 
-A conformance suite across smart-account policies, and a client SDK that builds the auth entry, are the next pieces. An optional extension can register one more allowlisted policy contract beside the policies this package already accepts. That extension stays outside this package.
+A conformance suite across more smart-account policies is the next piece. An optional extension can register one more allowlisted policy contract beside the policies this package already accepts. That extension stays outside this package.
 
 ## License
 

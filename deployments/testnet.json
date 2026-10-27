@@ -7,6 +7,17 @@
   "deployedAt": "2026-10-27T01:15:23.830Z",
   "note": "The same merchant wasm was also deployed as CDHXCF2BT6FQRDCFRGRIEUUP3FZPHIH6J42NGDO6V2IJJPLSQ2B32MLN (upload 4f6f690bb6e2d38dfe5b16e082148e30cd363cfb9844ccbfe8601a7407870df6, deploy 6edb3a63e0b517609299aabbf0c066cf1aaec1b7a3cc413a779b7bf7700da2dd) before a sequence retry. contracts.merchantAllowlist is the recorded instance.",
   "deployer": "GCV3S4NA5Q3EZ5UZPUZMDLQWOP6FU52TEOCUNAZWYIKMFHHDWCH4LD4U",
+  "reused": {
+    "accountWasmHash": "c514d35ea67eaea9bfc1fb3327854c0c06111bc1ddebd4fe217c504c1004b9e1",
+    "ed25519Verifier": "CAAVTMCBXEIBPR64EAASKFXERVPYFZA2JYP5A3BG6PESWEFUJX5IHKN4",
+    "spendingLimit": {
+      "contractId": "CC3CEYQAP6NPNFIYSWL5MVZRCPJZGWX4XO7WDEJOUVGO2FZX5OONYPA5",
+      "source": "stellar-accounts 0.8.0 testnet singleton"
+    },
+    "simpleThreshold": "CAZ2WFUDXGX265LOEARFEOYYUL6F4BYWXZLGUAWZNJY3MRFPNLSZVS4S",
+    "weightedThreshold": "CDBYLFLUNPAYGE3AHZSMB4TFWECFCCHX6CJFMFO6HRPKK2W5PFU2LCKE",
+    "nativeAsset": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC"
+  },
   "contracts": {
     "merchantAllowlist": {
       "contractId": "CAP53MP7CWG3TTOQNMICVSNIBFMNEE7HYNOK4O2OP3FVBBB4YK6UAZP6",

@@ -25,10 +25,12 @@ pnpm test
 - `packages/verifier` — `stellar-x402-policies`
 - `packages/sdk` — `@stellar-x402-policies/sdk`
 - `packages/mcp` — stdio MCP server (`inspect_account`, `pay`, `estimate_fee`)
+- `packages/inspector` — `sxp` CLI
 - `contracts/merchant-allowlist-policy` and `contracts/period-cap-policy` — Soroban policies on stellar-accounts 0.8.0
 - `templates/` — allowance templates compiled by the kit
 - `examples/facilitator` — `GET /supported`, `POST /verify`, `POST /settle`
-- `examples/testnet-demo` — config printout, plus verify and optional settle on testnet
+- `examples/demo` — `pnpm demo`, the kit testnet run
+- `examples/testnet-demo` — the earlier settlement script (`pnpm live`)
 
 ## Secrets
 
