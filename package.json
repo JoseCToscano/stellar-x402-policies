@@ -11,7 +11,7 @@
     "build": "pnpm -r --if-present build",
     "lint": "eslint .",
     "typecheck": "pnpm -r --if-present typecheck",
-    "test": "pnpm --filter stellar-x402-policies test",
+    "test": "pnpm -r --if-present test",
     "facilitator": "pnpm --filter stellar-x402-policies build && pnpm --filter stellar-x402-facilitator start",
     "demo": "pnpm --filter stellar-x402-policies build && pnpm --filter stellar-x402-testnet-demo demo",
     "live": "pnpm --filter stellar-x402-policies build && pnpm --filter stellar-x402-facilitator build && pnpm --filter stellar-x402-testnet-demo build && pnpm --filter stellar-x402-testnet-demo live"

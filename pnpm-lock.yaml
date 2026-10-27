@@ -65,6 +65,25 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  packages/sdk:
+    dependencies:
+      '@stellar/stellar-sdk':
+        specifier: ^16.3.0
+        version: 16.4.1
+      stellar-x402-policies:
+        specifier: workspace:*
+        version: link:../verifier
+    devDependencies:
+      '@types/node':
+        specifier: ^22.19.1
+        version: 22.20.5
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@22.20.5)
+
   packages/verifier:
     dependencies:
       '@stellar/stellar-sdk':
