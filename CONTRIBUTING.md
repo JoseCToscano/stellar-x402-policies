@@ -16,13 +16,15 @@ pnpm typecheck
 pnpm test
 ```
 
-`pnpm test` runs the vitest suite in `packages/verifier`. The tests cover event classification, muxed-contract (W) recipient matching, and the warm and cold fee caps, and they compare this package with `ExactStellarScheme` from `@x402/stellar` 2.28.x.
+`pnpm test` runs vitest in `packages/verifier`, `packages/sdk`, and `packages/mcp`. The verifier tests cover event classification, muxed-contract (W) recipient matching, and the warm and cold fee caps, and they compare this package with `ExactStellarScheme` from `@x402/stellar` 2.28.x. The MCP test spawns the stdio server.
 
 `cargo test --manifest-path contracts/Cargo.toml` runs the Soroban policy tests. `cargo test --manifest-path contracts/Cargo.toml -p merchant-allowlist-policy --features p30` runs the Protocol 30 muxed-destination matcher. Wasm builds use `stellar contract build` (stellar-cli 28.1, which sets the spec-shaking flag soroban-sdk 28 requires).
 
 ## Layout
 
 - `packages/verifier` — `stellar-x402-policies`
+- `packages/sdk` — `@stellar-x402-policies/sdk`
+- `packages/mcp` — stdio MCP server (`inspect_account`, `pay`, `estimate_fee`)
 - `contracts/merchant-allowlist-policy` and `contracts/period-cap-policy` — Soroban policies on stellar-accounts 0.8.0
 - `templates/` — allowance templates compiled by the kit
 - `examples/facilitator` — `GET /supported`, `POST /verify`, `POST /settle`
