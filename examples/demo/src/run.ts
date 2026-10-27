@@ -720,6 +720,7 @@ async function forcePanic(input: {
     .setTimeout(MAX_TIMEOUT_SECONDS)
     .build();
   tx.sign(input.owner);
+  const enforced = await simulateRaw(tx);
   const sent = await input.server.sendTransaction(tx);
   if (sent.status !== "PENDING" && sent.status !== "DUPLICATE") {
     const code = sent.errorResult?.result().switch().name ?? sent.status;
@@ -738,7 +739,7 @@ async function forcePanic(input: {
     hash: sent.hash,
     status: polled.status,
     feeCharged,
-    detail: `${raw.error ?? ""} ${topics}`.trim(),
+    detail: `signed simulation: ${enforced.error ?? "none"}; on-chain: ${polled.status}${topics.length > 0 ? ` (${topics})` : ""}`.trim(),
     url: expertTx(sent.hash),
   };
 }
@@ -934,8 +935,8 @@ async function main(): Promise<void> {
       "| --- | --- | ---: | ---: | --- |",
       `| A 0.1 XLM cold | ${cold.txHash === undefined ? JSON.stringify(cold) : "settled"} | ${coldFee.charged || cold.feeCharged || ""} | ${coldFee.bid} | ${coldHash.length === 0 ? "" : `[${coldHash}](${expertTx(coldHash)})`} |`,
       `| A 0.1 XLM warm | ${warm.txHash === undefined ? JSON.stringify(warm) : "settled"} | ${warmFee.charged || warm.feeCharged || ""} | ${warmFee.bid} | ${warmHash.length === 0 ? "" : `[${warmHash}](${expertTx(warmHash)})`} |`,
-      `| A 0.15 XLM | \`${String(over.status ?? "")} ${String(over.reason ?? "")}\` | | | |`,
-      `| B 0.1 XLM precheck | \`${String(blocked.status ?? "")} ${String(blocked.reason ?? "")}\` | | | |`,
+      `| A 0.15 XLM | \`${String(over.status ?? "")} ${String(over.reason ?? over.message ?? "")}\` | | | |`,
+      `| B 0.1 XLM precheck | \`${String(blocked.status ?? "")} ${String(blocked.reason ?? blocked.message ?? "")}\` | | | |`,
       `| B 0.1 XLM force-submit | ${forced.status} ${forced.detail} | ${forced.feeCharged} | | [${forced.hash}](${forced.url}) |`,
       "",
       "## sxp inspect before",

@@ -88,6 +88,8 @@ function authEntry(): xdr.SorobanAuthorizationEntry {
 class MockRpc implements KitRpc {
   readonly calls: string[] = [];
   transfer: SimulatedCall = { minResourceFee: 58_228, rentStroops: 0, auth: [authEntry()] };
+  /** Returned for a transfer that already carries an auth entry. */
+  signedTransfer?: SimulatedCall;
   ledger = 1_000;
   validUntil: number | undefined = 5_000;
 
@@ -109,6 +111,14 @@ class MockRpc implements KitRpc {
       return { minResourceFee: 100, retval: ruleVal(this.validUntil) };
     }
     if (call?.method === "transfer") {
+      const operation = tx.operations[0];
+      if (
+        this.signedTransfer !== undefined &&
+        operation?.type === "invokeHostFunction" &&
+        (operation.auth?.length ?? 0) > 0
+      ) {
+        return this.signedTransfer;
+      }
       return this.transfer;
     }
     return { minResourceFee: 0, error: `unexpected ${call?.method}` };
@@ -212,6 +222,22 @@ describe("pay", () => {
     await expect(kit(rpc, fetchImpl).pay(requirements(), { signer, account: ACCOUNT })).rejects.toBeInstanceOf(
       PayRefused,
     );
+    expect(calls).toEqual([]);
+  });
+
+  it("refuses after the signed simulation when recording did not run the policy", async () => {
+    const rpc = new MockRpc();
+    rpc.signedTransfer = { minResourceFee: 0, error: "HostError: Error(Contract, #3401)" };
+    const calls: string[] = [];
+    const fetchImpl: typeof fetch = async (input) => {
+      calls.push(String(input));
+      throw new Error("facilitator should not be called");
+    };
+    const signer = new Ed25519Signer(Keypair.random());
+    await expect(kit(rpc, fetchImpl).pay(requirements(), { signer, account: ACCOUNT })).rejects.toMatchObject({
+      reason: "merchant_not_allowed",
+      needsOwnerApproval: true,
+    });
     expect(calls).toEqual([]);
   });
 
