@@ -15,13 +15,7 @@ import {
 } from "@stellar/stellar-sdk";
 
 import type { AgentSigner } from "./signers.js";
-
-function sortedMap(entries: readonly xdr.ScMapEntry[]): xdr.ScVal {
-  const sorted = [...entries].sort((left, right) =>
-    Buffer.compare(left.key().toXDR(), right.key().toXDR()),
-  );
-  return xdr.ScVal.scvMap(sorted);
-}
+import { sortedMap } from "./scval.js";
 
 function symbolEntry(key: string, val: xdr.ScVal): xdr.ScMapEntry {
   return new xdr.ScMapEntry({ key: xdr.ScVal.scvSymbol(key), val });
