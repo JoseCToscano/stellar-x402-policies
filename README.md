@@ -97,6 +97,32 @@ pnpm facilitator
 
 The process listens on `127.0.0.1:4020` unless `HOST` and `PORT` say otherwise. The log line includes the public facilitator address, the fee cap, and the policy-contract count. It does not include seeds or the RPC URL.
 
+### MCP server
+
+`packages/mcp` (`@stellar-x402-policies/mcp`) exposes `inspect_account`, `pay`, and `estimate_fee` over stdio. `SXP_AGENT_SECRET` is the agent key. The process refuses `SXP_NETWORK=mainnet` unless `SXP_ALLOW_MAINNET=1`, and it does not write the secret to stdout or stderr.
+
+Claude Desktop and Cursor use the same `mcpServers` entry:
+
+```json
+{
+  "mcpServers": {
+    "stellar-x402-policies": {
+      "command": "node",
+      "args": ["packages/mcp/dist/stdio.js"],
+      "env": {
+        "SXP_ACCOUNT": "C...",
+        "SXP_AGENT_SECRET": "S...",
+        "SXP_RPC_URL": "https://soroban-testnet.stellar.org",
+        "SXP_FACILITATOR_URL": "http://127.0.0.1:4020",
+        "SXP_NETWORK": "testnet"
+      }
+    }
+  }
+}
+```
+
+Build the server first with `pnpm --filter @stellar-x402-policies/mcp build`. The `S...` value in that snippet is a placeholder for the agent key only, never the owner key.
+
 ### Testnet demo
 
 `examples/testnet-demo` prints the resolved public config. When `PAYMENT_TRANSACTION_XDR` is set, it verifies that payload. `SETTLE=true` submits it. The payer seed in `.env.example` is for a separate client; this script does not read `PAYER_SECRET_KEY`.
