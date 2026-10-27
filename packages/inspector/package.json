@@ -1,0 +1,33 @@
+{
+  "name": "@stellar-x402-policies/inspector",
+  "version": "0.1.0",
+  "description": "sxp CLI for Stellar smart-account spending policies.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "sxp": "./dist/cli.js"
+  },
+  "main": "./dist/cli.js",
+  "types": "./dist/cli.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsc -p tsconfig.build.json && vitest run"
+  },
+  "dependencies": {
+    "@stellar-x402-policies/sdk": "workspace:*",
+    "@stellar/stellar-sdk": "^16.3.0",
+    "stellar-x402-policies": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.1",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

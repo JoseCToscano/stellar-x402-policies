@@ -17,7 +17,12 @@ export {
 export type { BalanceMovingTopic } from "./constants.js";
 
 export { classifySimulationEvents, rejectionMessage } from "./classify.js";
-export { contractAddressBase, encodeMuxedContract, sameTransferRecipient } from "./muxed.js";
+export {
+  contractAddressBase,
+  decodeMuxedContract,
+  encodeMuxedContract,
+  sameTransferRecipient,
+} from "./muxed.js";
 export type { MuxedContract } from "./muxed.js";
 export type {
   ClassifiedSimulationEvent,

@@ -47,7 +47,10 @@ export function readPolicyAwareOptions(env: NodeJS.ProcessEnv): PolicyAwareSchem
   const feeProfile = parseFeeProfileName(env.FEE_PROFILE);
   const rpcConfig = readRpcConfig(env);
   const options: PolicyAwareSchemeOptions = {
-    policyContracts: normalizePolicyContracts(parseCsv(env.POLICY_CONTRACT_IDS)),
+    policyContracts: normalizePolicyContracts([
+      ...parseCsv(env.POLICY_CONTRACT_IDS),
+      ...parseCsv(env.X402_POLICY_EVENT_CONTRACTS),
+    ]),
     policyEventTopics: normalizePolicyEventTopics(parseCsv(env.POLICY_EVENT_TOPICS)),
   };
   if (feeProfile !== undefined) {

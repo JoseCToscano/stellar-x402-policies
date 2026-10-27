@@ -211,13 +211,22 @@ export class SpendingPolicyKit {
       smartAccount: account,
     });
     const funded = await this.account(source);
-    const transaction = this.transferTx(
+    const signedTx = this.transferTx(
       requirements,
       account,
       funded.accountId(),
       funded.sequenceNumber(),
       [signed],
-    ).toXDR();
+    );
+    const enforced = await this.rpc.simulate(signedTx);
+    if (enforced.error !== undefined) {
+      const reason = reasonFromSimulationError(enforced.error);
+      if (reason !== undefined) {
+        throw new PayRefused(reason);
+      }
+      throw new Error(`payment simulation failed: ${enforced.error}`);
+    }
+    const transaction = signedTx.toXDR();
     const body = {
       paymentPayload: {
         x402Version: 2,

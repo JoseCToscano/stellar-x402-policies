@@ -5,6 +5,8 @@
 
 import { Address, Keypair, xdr } from "@stellar/stellar-sdk";
 
+import { compareScVal, sortedMap } from "./scval.js";
+
 export interface TemplateDocument {
   name: string;
   description?: string;
@@ -114,11 +116,9 @@ function i128(value: bigint): xdr.ScVal {
 }
 
 function symbolMap(entries: ReadonlyArray<readonly [string, xdr.ScVal]>): xdr.ScVal {
-  const mapped = entries.map(
-    ([key, val]) => new xdr.ScMapEntry({ key: xdr.ScVal.scvSymbol(key), val }),
+  return sortedMap(
+    entries.map(([key, val]) => new xdr.ScMapEntry({ key: xdr.ScVal.scvSymbol(key), val })),
   );
-  mapped.sort((left, right) => Buffer.compare(left.key().toXDR(), right.key().toXDR()));
-  return xdr.ScVal.scvMap(mapped);
 }
 
 function policyParams(policy: TemplatePolicy): xdr.ScVal {
@@ -149,7 +149,7 @@ function policyParams(policy: TemplatePolicy): xdr.ScVal {
     ]);
     return new xdr.ScMapEntry({ key: new Address(merchant.address).toScVal(), val: limit });
   });
-  merchants.sort((left, right) => Buffer.compare(left.key().toXDR(), right.key().toXDR()));
+  merchants.sort((left, right) => compareScVal(left.key(), right.key()));
   return symbolMap([
     ["merchants", xdr.ScVal.scvMap(merchants)],
     [
@@ -198,7 +198,7 @@ function installArgs(
         val: xdr.ScVal.fromXDR(policy.paramsXdr, "base64"),
       }),
   );
-  policyEntries.sort((left, right) => Buffer.compare(left.key().toXDR(), right.key().toXDR()));
+  policyEntries.sort((left, right) => compareScVal(left.key(), right.key()));
   const args = xdr.ScVal.scvVec([
     xdr.ScVal.scvVec([
       xdr.ScVal.scvSymbol("CallContract"),

@@ -1,0 +1,209 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`sxp > prints a W address as its base contract 1`] = `
+"{
+  "address": "WA37FAB2OXRQLTMKR36QXMT3JREOVIEDDK7SW3YCAB6NRZZNZUG7KAAAAAAAAAAAA4QD2",
+  "baseAddress": "CA37FAB2OXRQLTMKR36QXMT3JREOVIEDDK7SW3YCAB6NRZZNZUG7K7BV",
+  "muxId": "7",
+  "ledger": 5409000,
+  "warnings": [
+    "agent rule \\"open-ended\\" has no expiry",
+    "unknown policy emitter CABXBYJNZ7IUW4G3D6BND5YCAQF3ASSDMDAOKQQ63UYFSO7WUU2TIP5G is not in the verifier allowlist wasm aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "history fill is 85.9% (700/815)"
+  ],
+  "rules": [
+    {
+      "id": 0,
+      "type": "Default",
+      "name": "owner",
+      "signers": [
+        {
+          "kind": "external",
+          "address": "",
+          "verifier": "CAAVTMCBXEIBPR64EAASKFXERVPYFZA2JYP5A3BG6PESWEFUJX5IHKN4"
+        }
+      ],
+      "policies": []
+    },
+    {
+      "id": 1,
+      "type": "CallContract",
+      "contract": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+      "name": "xlm-merchants",
+      "validUntil": 9000000,
+      "signers": [
+        {
+          "kind": "external",
+          "address": "",
+          "verifier": "CAAVTMCBXEIBPR64EAASKFXERVPYFZA2JYP5A3BG6PESWEFUJX5IHKN4"
+        }
+      ],
+      "policies": [
+        {
+          "address": "CC3CEYQAP6NPNFIYSWL5MVZRCPJZGWX4XO7WDEJOUVGO2FZX5OONYPA5",
+          "name": "spending_limit"
+        },
+        {
+          "address": "CAP53MP7CWG3TTOQNMICVSNIBFMNEE7HYNOK4O2OP3FVBBB4YK6UAZP6",
+          "name": "merchant-allowlist"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "CallContract",
+      "contract": "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
+      "name": "open-ended",
+      "signers": [
+        {
+          "kind": "external",
+          "address": "",
+          "verifier": "CAAVTMCBXEIBPR64EAASKFXERVPYFZA2JYP5A3BG6PESWEFUJX5IHKN4"
+        }
+      ],
+      "policies": [
+        {
+          "address": "CABXBYJNZ7IUW4G3D6BND5YCAQF3ASSDMDAOKQQ63UYFSO7WUU2TIP5G",
+          "name": "unknown",
+          "wasmHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    }
+  ],
+  "merchants": [
+    {
+      "merchant": "GD6ROJBYLKQMOW3E7N4M2YBPUHMZD7PL65VRHRMO24BOVSBV5H3BQRSL",
+      "remaining": "1000000",
+      "allowed": true
+    }
+  ],
+  "historyFill": {
+    "entries": 700,
+    "capacity": 815,
+    "percent": "85.9"
+  }
+}
+"
+`;
+
+exports[`sxp > prints dry-run install XDR for each template 1`] = `
+"template: agent-daily-usdc
+ownerRule: Default owner ed25519
+rule: usdc-daily token=CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA validUntil=9000000
+policy: spending_limit contract=CC3CEYQAP6NPNFIYSWL5MVZRCPJZGWX4XO7WDEJOUVGO2FZX5OONYPA5
+paramsXdr: AAAAEQAAAAEAAAACAAAADwAAAA5wZXJpb2RfbGVkZ2VycwAAAAAAAwAAQ4AAAAAPAAAADnNwZW5kaW5nX2xpbWl0AAAAAAAKAAAAAAAAAAAAAAAAAJiWgA==
+policy: period_cap contract=CB2VQO2NYP4DJBPNCZGRGEUKIUCK7BJW66OXEPDHV7RJT2ICW23X3EL5
+paramsXdr: AAAAEQAAAAEAAAAEAAAADwAAAA1hbmNob3JfbGVkZ2VyAAAAAAAAAwBSZcAAAAAPAAAAA2NhcAAAAAAKAAAAAAAAAAAAAAAAAJiWgAAAAA8AAAAKcGVyX3R4X21heAAAAAAACgAAAAAAAAAAAAAAAAAehIAAAAAPAAAADnBlcmlvZF9sZWRnZXJzAAAAAAADAABDgA==
+installXdr: AAAAEAAAAAEAAAAFAAAAEAAAAAEAAAACAAAADwAAAAxDYWxsQ29udHJhY3QAAAASAAAAAVBFzV7Acpp2j9WtAlBYUt9PAo3Ogw5axSIJukhIOy8BAAAADgAAAAp1c2RjLWRhaWx5AAAAAAADAIlUQAAAABAAAAABAAAAAQAAABAAAAABAAAAAwAAAA8AAAAIRXh0ZXJuYWwAAAASAAAAAQFZsEG5EBfH3CABJRbkjV+C5BpOH9BsJvPJKxC0TfqDAAAADQAAACDqSmxj4pxSCr71UHsTLsX5lUd2rr6+e5JCHuppFEbSLAAAABEAAAABAAAAAgAAABIAAAABdVg7TcP4NIXtFk0TEopFBK+FNvedcjxnr+KZ6QK2t30AAAARAAAAAQAAAAQAAAAPAAAADWFuY2hvcl9sZWRnZXIAAAAAAAADAFJlwAAAAA8AAAADY2FwAAAAAAoAAAAAAAAAAAAAAAAAmJaAAAAADwAAAApwZXJfdHhfbWF4AAAAAAAKAAAAAAAAAAAAAAAAAB6EgAAAAA8AAAAOcGVyaW9kX2xlZGdlcnMAAAAAAAMAAEOAAAAAEgAAAAG2ImIAf5r2lRiVl9ZXMRPTk1r8u79hkS6lTO0XN+uc3AAAABEAAAABAAAAAgAAAA8AAAAOcGVyaW9kX2xlZGdlcnMAAAAAAAMAAEOAAAAADwAAAA5zcGVuZGluZ19saW1pdAAAAAAACgAAAAAAAAAAAAAAAACYloA=
+"
+`;
+
+exports[`sxp > prints dry-run install XDR for each template 2`] = `
+"template: agent-merchant-allowlist
+ownerRule: Default owner ed25519
+rule: xlm-merchants token=CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC validUntil=9000000
+policy: spending_limit contract=CC3CEYQAP6NPNFIYSWL5MVZRCPJZGWX4XO7WDEJOUVGO2FZX5OONYPA5
+paramsXdr: AAAAEQAAAAEAAAACAAAADwAAAA5wZXJpb2RfbGVkZ2VycwAAAAAAAwAAQ4AAAAAPAAAADnNwZW5kaW5nX2xpbWl0AAAAAAAKAAAAAAAAAAAAAAAAAJiWgA==
+policy: merchant_allowlist contract=CAP53MP7CWG3TTOQNMICVSNIBFMNEE7HYNOK4O2OP3FVBBB4YK6UAZP6
+paramsXdr: AAAAEQAAAAEAAAACAAAADwAAAAltZXJjaGFudHMAAAAAAAARAAAAAQAAAAEAAAASAAAAAAAAAAD9FyQ4WqDHW2T7eM1gL6HZkf3r92sTxY7XAurINen2GAAAABEAAAABAAAAAgAAAA8AAAADY2FwAAAAAAoAAAAAAAAAAAAAAAAALcbAAAAADwAAAA5wZXJpb2RfbGVkZ2VycwAAAAAAAwAAQ4AAAAAPAAAACnBlcl90eF9tYXgAAAAAAAoAAAAAAAAAAAAAAAAAFuNg
+installXdr: AAAAEAAAAAEAAAAFAAAAEAAAAAEAAAACAAAADwAAAAxDYWxsQ29udHJhY3QAAAASAAAAAdeSi3LCcDzP6vfrn/TvTVBKVai5efybRQ6iyEK00c5hAAAADgAAAA14bG0tbWVyY2hhbnRzAAAAAAAAAwCJVEAAAAAQAAAAAQAAAAEAAAAQAAAAAQAAAAMAAAAPAAAACEV4dGVybmFsAAAAEgAAAAEBWbBBuRAXx9wgASUW5I1fguQaTh/QbCbzySsQtE36gwAAAA0AAAAg6kpsY+KcUgq+9VB7Ey7F+ZVHdq6+vnuSQh7qaRRG0iwAAAARAAAAAQAAAAIAAAASAAAAAR/dsf8VjbnN0GsQKsmoCVjSE+fDXK47Tn7LUIQ8wr1AAAAAEQAAAAEAAAACAAAADwAAAAltZXJjaGFudHMAAAAAAAARAAAAAQAAAAEAAAASAAAAAAAAAAD9FyQ4WqDHW2T7eM1gL6HZkf3r92sTxY7XAurINen2GAAAABEAAAABAAAAAgAAAA8AAAADY2FwAAAAAAoAAAAAAAAAAAAAAAAALcbAAAAADwAAAA5wZXJpb2RfbGVkZ2VycwAAAAAAAwAAQ4AAAAAPAAAACnBlcl90eF9tYXgAAAAAAAoAAAAAAAAAAAAAAAAAFuNgAAAAEgAAAAG2ImIAf5r2lRiVl9ZXMRPTk1r8u79hkS6lTO0XN+uc3AAAABEAAAABAAAAAgAAAA8AAAAOcGVyaW9kX2xlZGdlcnMAAAAAAAMAAEOAAAAADwAAAA5zcGVuZGluZ19saW1pdAAAAAAACgAAAAAAAAAAAAAAAACYloA=
+"
+`;
+
+exports[`sxp > prints dry-run install XDR for each template 3`] = `
+"template: agent-monthly-multi-asset
+ownerRule: Default owner passkey
+rule: xlm-month token=CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC validUntil=9000000
+policy: period_cap contract=CB2VQO2NYP4DJBPNCZGRGEUKIUCK7BJW66OXEPDHV7RJT2ICW23X3EL5
+paramsXdr: AAAAEQAAAAEAAAAEAAAADwAAAA1hbmNob3JfbGVkZ2VyAAAAAAAAAwBSZcAAAAAPAAAAA2NhcAAAAAAKAAAAAAAAAAAAAAAABfXhAAAAAA8AAAAKcGVyX3R4X21heAAAAAAACgAAAAAAAAAAAAAAAACYloAAAAAPAAAADnBlcmlvZF9sZWRnZXJzAAAAAAADAAfpAA==
+installXdr: AAAAEAAAAAEAAAAFAAAAEAAAAAEAAAACAAAADwAAAAxDYWxsQ29udHJhY3QAAAASAAAAAdeSi3LCcDzP6vfrn/TvTVBKVai5efybRQ6iyEK00c5hAAAADgAAAAl4bG0tbW9udGgAAAAAAAADAIlUQAAAABAAAAABAAAAAQAAABAAAAABAAAAAwAAAA8AAAAIRXh0ZXJuYWwAAAASAAAAAQFZsEG5EBfH3CABJRbkjV+C5BpOH9BsJvPJKxC0TfqDAAAADQAAACDqSmxj4pxSCr71UHsTLsX5lUd2rr6+e5JCHuppFEbSLAAAABEAAAABAAAAAQAAABIAAAABdVg7TcP4NIXtFk0TEopFBK+FNvedcjxnr+KZ6QK2t30AAAARAAAAAQAAAAQAAAAPAAAADWFuY2hvcl9sZWRnZXIAAAAAAAADAFJlwAAAAA8AAAADY2FwAAAAAAoAAAAAAAAAAAAAAAAF9eEAAAAADwAAAApwZXJfdHhfbWF4AAAAAAAKAAAAAAAAAAAAAAAAAJiWgAAAAA8AAAAOcGVyaW9kX2xlZGdlcnMAAAAAAAMAB+kA
+rule: usdc-month token=CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA validUntil=9000000
+policy: period_cap contract=CB2VQO2NYP4DJBPNCZGRGEUKIUCK7BJW66OXEPDHV7RJT2ICW23X3EL5
+paramsXdr: AAAAEQAAAAEAAAAEAAAADwAAAA1hbmNob3JfbGVkZ2VyAAAAAAAAAwBSZcAAAAAPAAAAA2NhcAAAAAAKAAAAAAAAAAAAAAAABfXhAAAAAA8AAAAKcGVyX3R4X21heAAAAAAACgAAAAAAAAAAAAAAAACYloAAAAAPAAAADnBlcmlvZF9sZWRnZXJzAAAAAAADAAfpAA==
+installXdr: AAAAEAAAAAEAAAAFAAAAEAAAAAEAAAACAAAADwAAAAxDYWxsQ29udHJhY3QAAAASAAAAAVBFzV7Acpp2j9WtAlBYUt9PAo3Ogw5axSIJukhIOy8BAAAADgAAAAp1c2RjLW1vbnRoAAAAAAADAIlUQAAAABAAAAABAAAAAQAAABAAAAABAAAAAwAAAA8AAAAIRXh0ZXJuYWwAAAASAAAAAQFZsEG5EBfH3CABJRbkjV+C5BpOH9BsJvPJKxC0TfqDAAAADQAAACDqSmxj4pxSCr71UHsTLsX5lUd2rr6+e5JCHuppFEbSLAAAABEAAAABAAAAAQAAABIAAAABdVg7TcP4NIXtFk0TEopFBK+FNvedcjxnr+KZ6QK2t30AAAARAAAAAQAAAAQAAAAPAAAADWFuY2hvcl9sZWRnZXIAAAAAAAADAFJlwAAAAA8AAAADY2FwAAAAAAoAAAAAAAAAAAAAAAAF9eEAAAAADwAAAApwZXJfdHhfbWF4AAAAAAAKAAAAAAAAAAAAAAAAAJiWgAAAAA8AAAAOcGVyaW9kX2xlZGdlcnMAAAAAAAMAB+kA
+"
+`;
+
+exports[`sxp > prints inspect --json for a fixture 1`] = `
+"{
+  "address": "CA37FAB2OXRQLTMKR36QXMT3JREOVIEDDK7SW3YCAB6NRZZNZUG7K7BV",
+  "ledger": 5409000,
+  "warnings": [
+    "agent rule \\"open-ended\\" has no expiry",
+    "unknown policy emitter CABXBYJNZ7IUW4G3D6BND5YCAQF3ASSDMDAOKQQ63UYFSO7WUU2TIP5G is not in the verifier allowlist wasm aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "history fill is 85.9% (700/815)"
+  ],
+  "rules": [
+    {
+      "id": 0,
+      "type": "Default",
+      "name": "owner",
+      "signers": [
+        {
+          "kind": "external",
+          "address": "",
+          "verifier": "CAAVTMCBXEIBPR64EAASKFXERVPYFZA2JYP5A3BG6PESWEFUJX5IHKN4"
+        }
+      ],
+      "policies": []
+    },
+    {
+      "id": 1,
+      "type": "CallContract",
+      "contract": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+      "name": "xlm-merchants",
+      "validUntil": 9000000,
+      "signers": [
+        {
+          "kind": "external",
+          "address": "",
+          "verifier": "CAAVTMCBXEIBPR64EAASKFXERVPYFZA2JYP5A3BG6PESWEFUJX5IHKN4"
+        }
+      ],
+      "policies": [
+        {
+          "address": "CC3CEYQAP6NPNFIYSWL5MVZRCPJZGWX4XO7WDEJOUVGO2FZX5OONYPA5",
+          "name": "spending_limit"
+        },
+        {
+          "address": "CAP53MP7CWG3TTOQNMICVSNIBFMNEE7HYNOK4O2OP3FVBBB4YK6UAZP6",
+          "name": "merchant-allowlist"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "CallContract",
+      "contract": "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
+      "name": "open-ended",
+      "signers": [
+        {
+          "kind": "external",
+          "address": "",
+          "verifier": "CAAVTMCBXEIBPR64EAASKFXERVPYFZA2JYP5A3BG6PESWEFUJX5IHKN4"
+        }
+      ],
+      "policies": [
+        {
+          "address": "CABXBYJNZ7IUW4G3D6BND5YCAQF3ASSDMDAOKQQ63UYFSO7WUU2TIP5G",
+          "name": "unknown",
+          "wasmHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    }
+  ],
+  "merchants": [
+    {
+      "merchant": "GD6ROJBYLKQMOW3E7N4M2YBPUHMZD7PL65VRHRMO24BOVSBV5H3BQRSL",
+      "remaining": "1000000",
+      "allowed": true
+    }
+  ],
+  "historyFill": {
+    "entries": 700,
+    "capacity": 815,
+    "percent": "85.9"
+  }
+}
+"
+`;
