@@ -4,9 +4,11 @@ Policy-aware verification for [x402](https://github.com/x402-foundation/x402) pa
 
 Apache-2.0.
 
-<!-- demo video: TODO -->
+## Demo
 
-A 2-minute walkthrough is coming. There is no video link yet.
+Watch the 2-minute testnet walkthrough: an agent pays within its limits, an over-cap payment is held for owner approval, and an unlisted merchant is refused.
+
+[stellar-x402-policies demo on YouTube](https://youtu.be/Tg5207imY-0)
 
 ## Quickstart
 
